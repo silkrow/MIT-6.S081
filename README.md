@@ -1,6 +1,6 @@
 # MIT-6.S081
 
-This is a repository containing my solutions to the course MIT 6.S081. 
+This is a repository containing my solutions to the labs in course MIT 6.S081. 
 
 Here's the website where I learnt this course: https://pdos.csail.mit.edu/6.828/2021/schedule.html
 
