@@ -1,7 +1,5 @@
 /* sleep.c
  * created by: Erkai Yu
- * 
- * Things to notice:
  * Pause for a user-specified number of ticks.
  * If user forgets to pass an argument, sleep should print an error message.
  * The command-line argument is passed as a string, shall be converted with atoi(see user/ulib.c).
