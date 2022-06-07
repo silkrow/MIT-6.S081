@@ -12,14 +12,13 @@
 int main(int argc, char *argv[]){
 	int p1[2];
 	int p2[2];
-	pipe(p1);
-	pipe(p2);
+	if (-1 == pipe(p1) || -1 == pipe(p2)) exit(1);
 	char* message = malloc(1); // The one byte message for pingpong.
 
 	if (fork() == 0){
 		read(p1[0], message, 1);
-		write(p2[1], message, 1);
 		fprintf(1, "%d: received ping\n", getpid());
+		write(p2[1], message, 1);
 		free(message);
 		exit(0);
 	}
