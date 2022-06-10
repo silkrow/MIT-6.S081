@@ -84,6 +84,7 @@ enum procstate { UNUSED, USED, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
 // Per-process state
 struct proc {
+  int tr_mask; // Added for the syscall lab.
   struct spinlock lock;
 
   // p->lock must be held when using these:
