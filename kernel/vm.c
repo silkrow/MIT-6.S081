@@ -448,7 +448,7 @@ void vmprint(pagetable_t pagetable){
 					pagetable_t child2 = (pagetable_t)PTE2PA(pte2);
 					for (int k = 0; k < 512; k++){
 						pte_t pte3 = child2[k];
-						if ((pte3 & PTE_V) == 0){						
+						if (pte3 & PTE_V){						
 							printf(" .. .. ..%d: pte %p pa %p\n", k, pte3, PTE2PA(pte3));
 						}
 					}
