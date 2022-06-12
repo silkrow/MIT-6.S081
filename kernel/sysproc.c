@@ -80,7 +80,46 @@ sys_sleep(void)
 int
 sys_pgaccess(void)
 {
+// Three arguments. 
+// 1) the starting virtual address of the first user page to check.
+// 2) the number of pages to check.
+// 3) a user address to a buffer to store the results into a bitmask.
   // lab pgtbl: your code here.
+  uint64 v_st;
+  int npages;
+  uint64 u_addr;
+  struct proc *p = myproc();
+  uint64 ans = 0;
+
+  if(argaddr(0, &v_st) < 0) return -1;
+  if(argint(1, &npages) < 0) return -1;
+  if(argaddr(2, &u_addr) < 0) return -1;
+
+  uint64 va = v_st;
+  pagetable_t pagetable = p->pagetable;
+
+  for (int i = 0; i < npages; i++){
+	pte_t *pte;
+    for(int level = 2; level >= 0; level--) {
+      pte = &pagetable[PX(level, va)];
+      if(*pte & PTE_V) {
+        pagetable = (pagetable_t)PTE2PA(*pte);
+      } else {
+		break;
+      }
+    }
+	if((*pte & PTE_V) && (*pte & PTE_A)){
+		//printf("pte %p pa %p va %p\n", *pte, PTE2PA(*pte), va);
+		ans |= 1<<i;
+		*pte = (*pte)&(~PTE_A);
+	}
+	va += PGSIZE;
+	pagetable = p->pagetable;
+  }
+  //printf("%p\n", ans);
+  if(copyout(p->pagetable, u_addr, (char *)&ans, sizeof(ans)) < 0)
+	  return -1;
+
   return 0;
 }
 #endif
@@ -107,3 +146,5 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+
