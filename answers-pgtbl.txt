@@ -1,0 +1,13 @@
+hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
+hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
+hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
+hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
+hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
+hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
+I'm not sure what questions should I answer?
+So I simply fill this file with some bullshits.
+
+My version of pgaccess is not that perfect, since I used an uint64 buffer to send back the bitmask after checking the test file and find out
+the bitmask is retrived with a unsigned int variable. However, I guess that without stating how many pages will be checked(the second argument),
+I have no great method to pass the bitmask back(with first page corresponding to the least significant bit as required) other than passing them
+one bit by another.
