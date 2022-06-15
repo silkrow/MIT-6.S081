@@ -1,0 +1,31 @@
+1. Which registers contain arguments to functions? For example, which register holds 13 in main's call to printf?
+
+A: Registers a0, a1, a2 contains arguments to functions. a2 holds 13 in main's call to printf.
+
+2. Where is the call to function f in the assembly code for main? Where is the call to g?(Hint: the compiler may inline functions.)
+
+A: By the assembly code, the function f is called at line 0x26, but the compiler handled it as an inline function, simply passing the result of f(8)+1 as one of the argument to function printf.
+
+3. At what address is the function printf located?
+
+A: The function printf is located at line 0x630.
+
+4. Run the following code:
+	
+	unsigned int i = 0x00646c2;
+	printf("H%x Wo%s", 57616, &i);
+
+What is the output? 
+
+A: The output is 
+He110 World
+
+The output depends on that fact the RISC-V is little-endian. If the RISC-V were instead big-endian what would you set i to in order to yield the same output? Would you need to change 57616 to a different value?
+
+A: If the RISC-V was instead big-endian, I would set i = 0x726c6400; 57616 does not need to be changed.
+
+6. In the following code, what is going to be printed after 'y='?(note: the answer is not a specific value.) Why does this happen?
+	
+	printf("x=%d y=%d", 3);
+
+A: A random int is printed after 'y='. Because the register used by function printf still holds its original value, which is just a random number in this case.
