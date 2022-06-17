@@ -105,4 +105,10 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
+
+  int al_ticks;		           // Number of ticks in sigalarm
+  uint64 al_handler;           // Pointer to handler function
+  int al_past;		           // How much time has past since last call of handler
+  int al_entered;              // Used to indicate whether the handler function is running.
+  struct trapframe *savedframe; // Used to assist alarm lab
 };

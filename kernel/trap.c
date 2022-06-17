@@ -77,8 +77,18 @@ usertrap(void)
     exit(-1);
 
   // give up the CPU if this is a timer interrupt.
-  if(which_dev == 2)
+  if(which_dev == 2){
+    if(p->al_ticks >= 0 && !p->al_entered){ // Check if handler is needed.	  
+	  p->al_past++; // Record the time passed.
+	  if(p->al_past == p->al_ticks){ // handler function needed.
+	  	p->al_past = 0; // Reset the time. 
+		*(p->savedframe) = *(p->trapframe);
+		p->trapframe->epc = p->al_handler;
+		p->al_entered = 1;
+	  }
+	}
     yield();
+  }
 
   usertrapret();
 }

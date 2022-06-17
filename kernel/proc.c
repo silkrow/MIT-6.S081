@@ -127,6 +127,13 @@ found:
     return 0;
   }
 
+  // Added for the alarm lab.
+  if((p->savedframe = (struct trapframe *)kalloc()) == 0){
+    freeproc(p);
+    release(&p->lock);
+    return 0;
+  }
+
   // An empty user page table.
   p->pagetable = proc_pagetable(p);
   if(p->pagetable == 0){
@@ -140,6 +147,12 @@ found:
   memset(&p->context, 0, sizeof(p->context));
   p->context.ra = (uint64)forkret;
   p->context.sp = p->kstack + PGSIZE;
+
+  // Added for the traps lab.
+  p->al_ticks = -1;
+  p->al_handler = 0;
+  p->al_past = 0;
+  p->al_entered = 0;	
 
   return p;
 }
