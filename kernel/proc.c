@@ -126,7 +126,14 @@ found:
     release(&p->lock);
     return 0;
   }
-  
+
+  // Added for the alarm lab.
+  if((p->savedframe = (struct trapframe *)kalloc()) == 0){
+    freeproc(p);
+    release(&p->lock);
+    return 0;
+  }
+
   // An empty user page table.
   p->pagetable = proc_pagetable(p);
   if(p->pagetable == 0){
@@ -159,6 +166,12 @@ freeproc(struct proc *p)
   if(p->trapframe)
     kfree((void*)p->trapframe);
   p->trapframe = 0;
+  // Added for the alarm lab.
+  if(p->savedframe)
+    kfree((void*)p->savedframe);
+  p->savedframe = 0;
+
+
   if(p->pagetable)
     proc_freepagetable(p->pagetable, p->sz);
   p->pagetable = 0;
@@ -170,6 +183,12 @@ freeproc(struct proc *p)
   p->killed = 0;
   p->xstate = 0;
   p->state = UNUSED;
+
+  //Added for the alarm lab.
+  p->al_ticks = -1;
+  p->al_handler = 0;
+  p->al_past = 0;
+  p->al_entered = 0;	
 }
 
 // Create a user page table for a given process,
