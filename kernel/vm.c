@@ -303,7 +303,7 @@ uvmcopy(pagetable_t old, pagetable_t new, uint64 sz)
   pte_t *pte;
   uint64 pa, i;
   uint flags;
-  char *mem;
+  //char *mem;
 
   for(i = 0; i < sz; i += PGSIZE){
     if((pte = walk(old, i, 0)) == 0)
@@ -321,15 +321,16 @@ uvmcopy(pagetable_t old, pagetable_t new, uint64 sz)
       goto err;
     }
 	*/
-	flags = PTE_FLAGS(*pte);
-	flags &= ~PTE_W; // Clear PTE_W.
-	if (mappages(new, i, PGSIZE, pa, flags) != 0){
-		goto err;
-	}
-	if (mappages(old, i, PGSIZE, pa, flags) != 0){
-		goto err;
-	}
+		*pte &= ~PTE_W;
+		//*pte |= RSW;	
+		flags = PTE_FLAGS(*pte);
+		if (mappages(new, i, PGSIZE, pa, flags) != 0){
+			goto err;
+		}
+		incref(pa);
+
   }
+
   return 0;
 
  err:
@@ -360,7 +361,21 @@ copyout(pagetable_t pagetable, uint64 dstva, char *src, uint64 len)
 
   while(len > 0){
     va0 = PGROUNDDOWN(dstva);
-    pa0 = walkaddr(pagetable, va0);
+
+		if (va0 > MAXVA)
+			return -1;
+
+		pte_t *pte = walk(pagetable, va0, 0);
+		if (pte == 0 || (*pte & PTE_U) == 0 || (*pte & PTE_V) == 0)
+			return -1;
+
+		if ((*pte & PTE_W) == 0){
+			if(cowfault(pagetable, va0) < 0)
+					return -1;
+		}
+
+		pa0 = PTE2PA(*pte);
+
     if(pa0 == 0)
       return -1;
     n = PGSIZE - (dstva - va0);

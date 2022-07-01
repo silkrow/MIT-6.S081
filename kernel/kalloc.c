@@ -14,6 +14,8 @@ void freerange(void *pa_start, void *pa_end);
 extern char end[]; // first address after kernel.
                    // defined by kernel.ld.
 
+int ref_count[PHYSTOP/PGSIZE];
+
 struct run {
   struct run *next;
 };
@@ -35,8 +37,19 @@ freerange(void *pa_start, void *pa_end)
 {
   char *p;
   p = (char*)PGROUNDUP((uint64)pa_start);
-  for(; p + PGSIZE <= (char*)pa_end; p += PGSIZE)
+  for(; p + PGSIZE <= (char*)pa_end; p += PGSIZE){
+		ref_count[(uint64)p/PGSIZE] = 1;
     kfree(p);
+	}
+}
+
+void incref(uint64 pa){
+	int pn = pa/PGSIZE;
+	acquire(&kmem.lock);
+	if(pa >= PHYSTOP || ref_count[pn] < 1)
+		panic("incref");
+	ref_count[pn]+=1;
+	release(&kmem.lock);
 }
 
 // Free the page of physical memory pointed at by v,
@@ -51,10 +64,20 @@ kfree(void *pa)
   if(((uint64)pa % PGSIZE) != 0 || (char*)pa < end || (uint64)pa >= PHYSTOP)
     panic("kfree");
 
+	acquire(&kmem.lock); // This is necessary for dealing with the case when two processes free the same memory simultaneously.
+	if (ref_count[(uint64)pa/PGSIZE] < 1)
+			panic("kfree ref");
+	ref_count[(uint64)pa/PGSIZE] -= 1;
+	int tmp = ref_count[(uint64)pa/PGSIZE];
+	release(&kmem.lock);
+
+	if (tmp > 0)
+			return;
+
   // Fill with junk to catch dangling refs.
   memset(pa, 1, PGSIZE);
 
-  r = (struct run*)pa;
+ 	r = (struct run*)pa;
 
   acquire(&kmem.lock);
   r->next = kmem.freelist;
@@ -72,8 +95,10 @@ kalloc(void)
 
   acquire(&kmem.lock);
   r = kmem.freelist;
-  if(r)
+  if(r){
     kmem.freelist = r->next;
+		ref_count[(uint64)r/PGSIZE] = 1;
+	}
   release(&kmem.lock);
 
   if(r)
