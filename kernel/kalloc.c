@@ -60,11 +60,11 @@ kfree(void *pa)
 
 	push_off();
 	int cpu_id = cpuid();
-	pop_off();
   acquire(&kmems[cpu_id].lock);
   r->next = kmems[cpu_id].freelist;
   kmems[cpu_id].freelist = r;
   release(&kmems[cpu_id].lock);
+	pop_off();
 }
 
 // Allocate one 4096-byte page of physical memory.
@@ -90,6 +90,11 @@ kalloc(void)
 			acquire(&kmems[i].lock);
 			r_st = kmems[i].freelist;
 			if (r_st){
+				for (int j=0; j<128; j++){
+					if (r_st->next)
+						r_st = r_st->next;
+					else break;
+				}
 				kmems[cpu_id].freelist = kmems[i].freelist;
 				kmems[i].freelist = r_st->next;
 				r_st->next = 0;
