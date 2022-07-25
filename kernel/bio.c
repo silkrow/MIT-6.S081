@@ -201,9 +201,9 @@ brelse(struct buf *b)
   releasesleep(&b->lock);
 
 	int ou = (b->blockno)%NBUC;
-
   acquire(&bcaches[ou].lock);
   b->refcnt--;
+	if (b->refcnt == 0) b->tick = ticks;
   release(&bcaches[ou].lock);
 }
 
