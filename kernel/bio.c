@@ -70,6 +70,7 @@ bget(uint dev, uint blockno)
   // Is the block already cached?
   for(b = bcaches[no].head.next; b != &bcaches[no].head; b = b->next){
     if(b->dev == dev && b->blockno == blockno){
+			b->tick = ticks;
       b->refcnt++;
       release(&bcaches[no].lock);
       acquiresleep(&b->lock);
