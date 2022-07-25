@@ -41,7 +41,6 @@ void
 binit(void)
 {
   struct buf *b;
-
   initlock(&bcache.lock, "bcache");
 
   for (int i = 0; i < NBUC; i++){
@@ -77,7 +76,6 @@ bget(uint dev, uint blockno)
       return b;
     }
   }
-
   // Search in the bucket for LRU.
 	lru = 0;
   for(b = bcaches[no].head.next; b != &bcaches[no].head; b = b->next){
@@ -102,7 +100,7 @@ bget(uint dev, uint blockno)
 
   // Recycle the least recently used (LRU) unused buffer.
 	int ou;
-	int flag = 1;
+	int flag = 1; 
 	while (flag){
 		lru = 0;
 		flag = 0;
@@ -124,13 +122,13 @@ bget(uint dev, uint blockno)
 					lru->blockno = blockno;
 					lru->valid = 0;
 					lru->refcnt = 1;
-					lru->tick = ticks;
+					lru->tick = ticks; 
 
 					lru->next = bcaches[no].head.next;
 					lru->prev = &bcaches[no].head;
 					bcaches[no].head.next->prev = lru;
 					bcaches[no].head.next = lru;
-
+					
 					release(&bcache.lock);
 					release(&bcaches[no].lock);
 					acquiresleep(&lru->lock);
