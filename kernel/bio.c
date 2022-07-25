@@ -104,6 +104,7 @@ bget(uint dev, uint blockno)
 	int flag = 1;
 	while (flag){
 		lru = 0;
+		flag = 0;
   	for (b = bcache.buf; b < bcache.buf+NBUF; b++){
     	if (b->refcnt == 0){ // With bcaches[no].lock held and the previous for loop passed, it can be said that this buffer won't be in bucket bcaches[no].
 				flag = 1;
