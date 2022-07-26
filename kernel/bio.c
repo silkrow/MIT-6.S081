@@ -83,7 +83,7 @@ bget(uint dev, uint blockno)
 			if (lru == 0){
 				lru = b;
 			} else{
-				if (lru->tick > b->tick) lru = b;
+				if (lru->tick >= b->tick) lru = b;
 			}
     }
   }
@@ -110,12 +110,12 @@ bget(uint dev, uint blockno)
 				if (lru == 0){
 					lru = b;
 				} else {
-					if (lru->tick > b->tick) lru = b;
+					if (lru->tick >= b->tick) lru = b;
 				}
 			}
 		}
     if (lru){
-			if (lru->tick == -1){
+			if (lru->tick == -1){ 
         acquire(&bcache.lock);
 				if (lru->refcnt == 0){ // Lucky! The buffer is still available.
         	lru->dev = dev;
